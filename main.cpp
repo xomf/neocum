@@ -40,6 +40,8 @@ int main() {
     std::cout << titleColour << "Kernel:" << resetColour << " " << unameData.version << std::endl;
     std::cout << titleColour << "Hostname:" << resetColour << " " << unameData.nodename << std::endl;
     std::cout << titleColour << "Architecture:" << resetColour << " " << unameData.machine << std::endl;
+ 
+    std::cout << "\n";
 
     return 0;
 }
