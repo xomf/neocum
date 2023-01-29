@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <unistd.h>
 
@@ -41,6 +42,8 @@ std::string getGpuFolder() {
 int main() {
   struct utsname unameData;
   uname(&unameData);
+  struct sysinfo sys_info;
+  sysinfo(&sys_info);
 
   char *home = getenv("HOME");
   if (!home) {
@@ -107,6 +110,14 @@ int main() {
   } else {
     std::cout << "N/A" << std::endl;
   }
+
+  long long total_memory = sys_info.totalram;
+  total_memory *= sys_info.mem_unit;
+  long long used_memory = total_memory - sys_info.freeram;
+  used_memory *= sys_info.mem_unit;
+  std::cout << titleColour << "Memory: " << resetColour
+            << used_memory / (1024 * 1024) << "MiB/"
+            << total_memory / (1024 * 1024) << "MiB" << std::endl;
   std::cout << titleColour << "Uptime:" << resetColour << " ";
   std::ifstream uptime("/proc/uptime");
   if (uptime.is_open()) {
