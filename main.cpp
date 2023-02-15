@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <ctime>
 #include <dirent.h>
 #include <fstream>
@@ -10,6 +11,22 @@
 
 const std::string resetColour = "\033[0m";
 const std::string titleColour = "\033[1;31m";
+
+std::string prettyName() {
+  std::ifstream file("/etc/os-release");
+  std::string line;
+  std::string pretty_name = "N/A";
+  while (std::getline(file, line)) {
+    if (line.find("PRETTY_NAME=") == 0) {
+      pretty_name = line.substr(13, line.size() - 14);
+      pretty_name.erase(
+          std::remove(pretty_name.begin(), pretty_name.end(), '\"'),
+          pretty_name.end());
+      break;
+    }
+  }
+  return pretty_name;
+}
 
 std::string cleanseWhitespace(std::string str) {
   int i = 0;
@@ -76,6 +93,10 @@ int main() {
 
   std::cout << titleColour << "OS:" << resetColour << " " << unameData.sysname
             << " " << unameData.release << std::endl;
+
+  std::cout << titleColour << "Distro:" << resetColour << " " << prettyName()
+            << std::endl;
+
   std::cout << titleColour << "Kernel:" << resetColour << " "
             << unameData.version << std::endl;
   std::cout << titleColour << "Hostname:" << resetColour << " "
@@ -156,4 +177,3 @@ int main() {
 
   return 0;
 }
-
