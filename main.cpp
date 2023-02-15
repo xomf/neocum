@@ -2,6 +2,7 @@
 #include <dirent.h>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -111,13 +112,25 @@ int main() {
     std::cout << "N/A" << std::endl;
   }
 
-  long long total_memory = sys_info.totalram;
-  total_memory *= sys_info.mem_unit;
-  long long used_memory = total_memory - sys_info.freeram;
-  used_memory *= sys_info.mem_unit;
-  std::cout << titleColour << "Memory: " << resetColour
-            << used_memory / (1024 * 1024) << "MiB/"
-            << total_memory / (1024 * 1024) << "MiB" << std::endl;
+  std::ifstream meminfo("/proc/meminfo");
+  std::string line;
+  long long total_memory = 0, free_memory = 0, used_memory = 0;
+  while (std::getline(meminfo, line)) {
+    std::istringstream iss(line);
+    std::string name;
+    long long value;
+    iss >> name >> value;
+    if (name == "MemTotal:") {
+      total_memory = value;
+    } else if (name == "MemFree:" || name == "Buffers:" || name == "Cached:") {
+      free_memory += value;
+    }
+  }
+  used_memory = total_memory - free_memory;
+
+  std::cout << titleColour << "Memory: " << resetColour << used_memory / 1024
+            << "MiB/" << total_memory / 1024 << "MiB" << std::endl;
+
   std::cout << titleColour << "Uptime:" << resetColour << " ";
   std::ifstream uptime("/proc/uptime");
   if (uptime.is_open()) {
@@ -143,3 +156,4 @@ int main() {
 
   return 0;
 }
+
